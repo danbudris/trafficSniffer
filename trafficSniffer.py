@@ -9,6 +9,7 @@ import threading
 from datetime import datetime
 from time import sleep
 
+import curses
 import logging
 import argparse
 
@@ -21,16 +22,48 @@ class httpSniffer(object):
                 index=pd.to_datetime([])
             )
         )
+        self.anomalyAlarm = ""
 
     def statusReport(self, asDaemon=True, frequency=10):
         # run some logic to get the highest count among base URLs,
         # incldue the 'sections' and their count for that base URL,
         # include the total number of hits, 
         # include the top 5 number of hits over the last minute?
-        report = "TESTING STATUS REPORT"
+        #report = self.trafficData
+        topHits = ""
+        totalHits = ""
+
         if asDaemon:
             while True:
-                print(report)
+                topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
+                topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
+                totalHits = self.trafficData.baseUrl.count()
+                totalSections = self.trafficData.section.nunique()
+                totalPaths = self.trafficData.path.nunique()
+                topPath = self.trafficData.path.value_counts().head(1).to_string()
+                topSection = self.trafficData.section.value_counts().head(1).to_string()
+
+                statusReport = f"""
+{self.anomalyAlarm}
+-------------------------
+--- Traffic Summary
+--- {datetime.now().strftime("%I:%M%:%S%p on %B %d, %Y")}
+--- Most Accessed URL
+
+Top Hits by base URL: {topHits}
+Top Sections: \n {topHitSection}
+
+--- General Summary
+Total Hits: {totalHits}
+
+Total Sections: {totalSections}
+Top Section: {topSection}
+
+Total Paths: {totalPaths}
+Top Path: {topPath}
+--------------------------
+"""
+                print(statusReport)
                 sleep(frequency)
         else:
             return(report)
@@ -56,22 +89,22 @@ class httpSniffer(object):
         sniff(prn=callback, filter=packetFilter)
 
     def processPackets(self, pkt):
-        
         # Don't process non-http traffic
         if not pkt.haslayer(http.HTTPRequest):
             return
 
         # Parse out the HTTP layer of the traffic
-        http_layer = packet.getlayer(http.HTTPRequest)
-        ip_layer = packet.getlayer(IP)
+        http_layer = pkt.getlayer(http.HTTPRequest)
+        ip_layer = pkt.getlayer(IP)
 
         # Encode the packet data in UTF-8 from bytes, and processes as needed
-        baseUrl = http_layer.fields[Host].encode("utf-8")
-        section = (http_layer.fields[Path].encode("utf-8")).split("/")[1]
-        path = http_layer.fields[Path].encode("utf-8")
+        baseUrl = http_layer.fields["Host"].decode("utf-8")
+        section = (http_layer.fields["Path"].decode("utf-8")).split("/")[1]
+        path = http_layer.fields["Path"].decode("utf-8")
 
         # Add the packet information to the overall traffic dataframe
-        self.trafficData.loc[pd.TimeStamp('now')] = ([baseUrl, section, path])
+        self.trafficData.loc[pd.Timestamp('now')] = ([baseUrl, section, path])
+        #print(self.trafficData)
         return
 
 
@@ -92,15 +125,12 @@ def main():
     thread1.start()
     thread2.start()
 
-    while True:
-        # Do the scapy sniff
-        print("testing")
-        sleep(6)
+    traffic.sniffTraffic()
 
 if __name__ == "__main__":
-    sniffer = httpSniffer()
-    sniffer.trafficData.loc[pd.Timestamp('now')] = (['1', '2', '3'])
-    print(sniffer.trafficData)
+#    sniffer = httpSniffer()
+#    sniffer.trafficData.loc[pd.Timestamp('now')] = (['1', '2', '3'])
+#    print(sniffer.trafficData)
 
     main()
     # notes
