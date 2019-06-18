@@ -53,26 +53,33 @@ class httpSniffer(object):
         sniff(prn=callback, filter=packetFilter)
 
     def processPackets(self, pkt):
+        
+        # Don't process non-http traffic
         if not pkt.haslayer(http.HTTPRequest):
             return
 
+        # Parse out the HTTP layer of the traffic
         http_layer = packet.getlayer(http.HTTPRequest)
         ip_layer = packet.getlayer(IP)
 
-        # print '\n{0[src]} just requested a {1[Method]} {1[Host]}{1[Path]}'.format(ip_layer.fields, http_layer.fields)
+        # Encode the packet data in UTF-8 from bytes, and processes as needed
         baseUrl = http_layer.fields[Host].encode("utf-8")
         section = (http_layer.fields[Path].encode("utf-8")).split("/")[1]
         path = http_layer.fields[Path].encode("utf-8")
 
+        # Add the packet information to the overall traffic dataframe
         self.trafficData.loc[pd.TimeStamp('now')] = ([baseUrl, section, path])
         return
 
 
 def main():
+    '''
+        Main function for executing the reporting concurrently with the traffic sniffing
+    '''
     # Initialize the base traffic tracker
     traffic = httpSniffer()
 
-    # Start the reporting threads, to run concurrently with Scapy sniffing
+    # Start the reporting threads, to run concurrently with the sniffing
     statusReport = traffic.statusReport
     anomalyReport = traffic.anomalyCheck
     thread1 = threading.Thread(target=statusReport)
