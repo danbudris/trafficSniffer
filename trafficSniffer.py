@@ -27,6 +27,7 @@ class httpSniffer(object):
     anomalyCheck
     Args:
         threshhold (int): the threshhold above which the anomaly alert will trigger
+        timerange (int): Look at the last x minutes for anomalies
         
     sniffTraffic
     Args: 
