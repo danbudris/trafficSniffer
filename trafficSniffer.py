@@ -19,25 +19,27 @@ class httpSniffer(object):
             )
         )
 
-    def statusReport(self, asDaemon=True):
+    def statusReport(self, asDaemon=True, frequency=10):
         # run some logic to get the highest count among base URLs,
         # incldue the 'sections' and their count for that base URL,
         # include the total number of hits, 
         # include the top 5 number of hits over the last minute?
+        report = "TESTING STATUS REPORT"
         if asDaemon:
             while True:
-                print("status report")
-                sleep(10)
+                print(report)
+                sleep(frequency)
 
-    def anomalyCheck(self, threshold=10, asDaemon=True):
+    def anomalyCheck(self, threshold=10, asDaemon=True, frequency=120):
         # get all elements in hitsOverTime which occured in the last 2 minutes
         # if this value is greater than the threshold, add an alert which will be constantly printed with the every-10-seconds alerting
         # slice the trafficDatda dataframe to get a count of all events newer than 2 minutes
         # if that count is greater than the threshold value trigger the alert
+        report = "TESTING ANOMALY REPORT"
         if asDaemon:
             while True:
-                print("anomaly report")
-                sleep(120)
+                print(report)
+                sleep(frequency)
 
     def sniffTraffic(self, callback=None, packetFilter="tcp port 80"):
         if not callback:
