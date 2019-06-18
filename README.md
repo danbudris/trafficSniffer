@@ -15,5 +15,5 @@ From the root directory: `py -m unittest tests.anomalyDetectionTests`
 
 - Adjust the anomaly detection to factor in the true average traffic over a predefined sample period, as a baseline, and then start alerting on deviations form the sample data, rather than simply alerting on the excess of an arbitrary threshold.   
 
-## Details
+## Author
 Dan Budris <d.c.budris@gmail.com>
