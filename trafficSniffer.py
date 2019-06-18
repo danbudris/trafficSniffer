@@ -25,11 +25,6 @@ class httpSniffer(object):
         self.anomalyAlarm = ""
 
     def statusReport(self, asDaemon=True, frequency=10):
-        # run some logic to get the highest count among base URLs,
-        # incldue the 'sections' and their count for that base URL,
-        # include the total number of hits, 
-        # include the top 5 number of hits over the last minute?
-        #report = self.trafficData
         topHits = ""
         totalHits = ""
 
@@ -69,10 +64,6 @@ Top Path: {topPath}
             return(report)
 
     def anomalyCheck(self, threshold=10, asDaemon=True, frequency=120):
-        # get all elements in hitsOverTime which occured in the last 2 minutes
-        # if this value is greater than the threshold, add an alert which will be constantly printed with the every-10-seconds alerting
-        # slice the trafficDatda dataframe to get a count of all events newer than 2 minutes
-        # if that count is greater than the threshold value trigger the alert
         report = "TESTING ANOMALY REPORT"
         if asDaemon:
             while True:
@@ -82,6 +73,7 @@ Top Path: {topPath}
             return(report)
 
     def sniffTraffic(self, callback=None, packetFilter="tcp port 80"):
+        # if there's no custom callback set, use the default class method
         if not callback:
             callback = self.processPackets
 
@@ -128,13 +120,4 @@ def main():
     traffic.sniffTraffic()
 
 if __name__ == "__main__":
-#    sniffer = httpSniffer()
-#    sniffer.trafficData.loc[pd.Timestamp('now')] = (['1', '2', '3'])
-#    print(sniffer.trafficData)
-
     main()
-    # notes
-    # get value counts
-    # https://stackoverflow.com/questions/29626543/filter-select-rows-of-pandas-dataframe-by-timestamp-column
-    # https://stackoverflow.com/questions/49868647/how-to-slice-a-pandas-dataframe-based-on-datetime-index
-    # https://cmdlinetips.com/2018/02/how-to-get-frequency-counts-of-a-column-in-pandas-dataframe/
