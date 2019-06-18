@@ -29,6 +29,8 @@ class httpSniffer(object):
             while True:
                 print(report)
                 sleep(frequency)
+        else:
+            return(report)
 
     def anomalyCheck(self, threshold=10, asDaemon=True, frequency=120):
         # get all elements in hitsOverTime which occured in the last 2 minutes
@@ -40,6 +42,8 @@ class httpSniffer(object):
             while True:
                 print(report)
                 sleep(frequency)
+        else:
+            return(report)
 
     def sniffTraffic(self, callback=None, packetFilter="tcp port 80"):
         if not callback:
