@@ -1,3 +1,6 @@
+from scapy.all import *
+from scapy_http import http
+
 import pandas as pd
 import numpy as np
 
