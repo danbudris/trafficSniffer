@@ -1,5 +1,5 @@
 # trafficSniffer
-A python HTTP traffic sniffer.  When run as a script, this program will start a reporting thread, then start the traffic sniffer.  The traffic sniffer will grab all HTTP traffic (TCP port 80) on the local, and save it to an in-memory dataframe.  THe reporting thread will print out a summary of traffic statistics every 10 seconds, incluidng an anomaly report which alerts on traffic over the last two minutes exceeding a threshold.
+A python HTTP traffic sniffer.  When run as a script, this program will start a reporting thread, then start the traffic sniffer.  The traffic sniffer will grab all HTTP traffic (TCP port 80) on the local, and save it to an in-memory dataframe.  The reporting thread will print out a summary of traffic statistics every 10 seconds, incluidng an anomaly report which alerts on traffic over the last two minutes exceeding a threshold.
 
 ## Start the application
 
