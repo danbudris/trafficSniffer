@@ -15,6 +15,30 @@ import argparse
 
 
 class httpSniffer(object):
+    """ Sniff HTTP traffic and report on the recorded traffic
+    trafficData is a Pandas dataframe which records the baseUrl, section and path of each sniffed http request.  
+    trafficData is indexed by timestamp.
+    
+    statusReport
+    Args: 
+        asDaemon (bool): run the status report in a loop, for use in a thread
+        frequency (int): how often to run the status report, if running as a daemon
+        
+    anomalyCheck
+    Args:
+        threshhold (int): the threshhold above which the anomaly alert will trigger
+        timeWindow (int): the window, in minutes, in which to check for anomoalous traffic
+        
+    sniffTraffic
+    Args: 
+        callback (func): a callback to be executed on sniffed packets; defaults to the class method processPackets
+        packetFilter (string): a scapy packet filter; defaults to TPC and 80
+    
+    processPackets
+    Args:
+        pkt (object): a packet sniffed from the network by scapy sniff 
+    """
+    
     def __init__(self):
         self.trafficData = (
             pd.DataFrame(
@@ -25,20 +49,16 @@ class httpSniffer(object):
         self.anomalyAlarm = ""
 
     def statusReport(self, asDaemon=True, frequency=10):
-        topHits = ""
-        totalHits = ""
+        while True:
+            topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
+            topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
+            totalHits = self.trafficData.baseUrl.count()
+            totalSections = self.trafficData.section.nunique()
+            totalPaths = self.trafficData.path.nunique()
+            topPath = self.trafficData.path.value_counts().head(1).to_string()
+            topSection = self.trafficData.section.value_counts().head(1).to_string()
 
-        if asDaemon:
-            while True:
-                topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
-                topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
-                totalHits = self.trafficData.baseUrl.count()
-                totalSections = self.trafficData.section.nunique()
-                totalPaths = self.trafficData.path.nunique()
-                topPath = self.trafficData.path.value_counts().head(1).to_string()
-                topSection = self.trafficData.section.value_counts().head(1).to_string()
-
-                statusReport = f"""
+            statusReport = f"""
 {self.anomalyAlarm}
 -------------------------
 --- Traffic Summary
@@ -52,16 +72,17 @@ Top Sections: \n {topHitSection}
 Total Hits: {totalHits}
 
 Total Sections: {totalSections}
-Top Section: {topSection}
+Top Section Overall: {topSection}
 
 Total Paths: {totalPaths}
-Top Path: {topPath}
+Top Path Overall: {topPath}
 --------------------------
 """
-                print(statusReport)
-                sleep(frequency)
-        else:
-            return(report)
+
+            print(statusReport)
+            if not asDaemon:
+                return()
+            sleep(frequency)
 
     def anomalyCheck(self, threshold=10, asDaemon=True, frequency=120):
         report = "TESTING ANOMALY REPORT"
