@@ -27,7 +27,6 @@ class httpSniffer(object):
     anomalyCheck
     Args:
         threshhold (int): the threshhold above which the anomaly alert will trigger
-        timeWindow (int): the window, in minutes, in which to check for anomoalous traffic
         
     sniffTraffic
     Args: 
@@ -46,10 +45,15 @@ class httpSniffer(object):
                 index=pd.to_datetime([])
             )
         )
-        self.anomalyAlarm = ""
+        self.anomalyAlarmStatus = 0
+        self.anomalyAlarmMessage = ""
 
     def statusReport(self, asDaemon=True, frequency=10):
         while True:
+            # run the anomaly check
+            self.anomalyCheck()
+            
+            # Gather the report data
             topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
             topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
             totalHits = self.trafficData.baseUrl.count()
@@ -58,8 +62,9 @@ class httpSniffer(object):
             topPath = self.trafficData.path.value_counts().head(1).to_string()
             topSection = self.trafficData.section.value_counts().head(1).to_string()
 
+            # Generate the report string
             statusReport = f"""
-{self.anomalyAlarm}
+{self.anomalyAlarmMessage}
 -------------------------
 --- Traffic Summary
 --- {datetime.now().strftime("%I:%M%:%S%p on %B %d, %Y")}
@@ -78,20 +83,33 @@ Total Paths: {totalPaths}
 Top Path Overall: {topPath}
 --------------------------
 """
-
             print(statusReport)
             if not asDaemon:
                 return()
             sleep(frequency)
 
-    def anomalyCheck(self, threshold=10, asDaemon=True, frequency=120):
-        report = "TESTING ANOMALY REPORT"
-        if asDaemon:
-            while True:
-                print(report)
-                sleep(frequency)
-        else:
-            return(report)
+    def anomalyCheck(self, threshold=10, timeRange=2):
+        # Obtain the number of hits in the specified timerange
+        now = datetime.now()
+        start =  now - datetime.timedelta(minutes=timeRange)
+        end = now
+        hitsInRange = self.trafficData[start:end].count()
+        
+        # If the hits exceed the threshold, trigger the alarm
+        if hitsInRange >= threshold and self.anomalyAlarmStatus == 0:
+            self.anomalyAlarmStatus = 1
+            self.anomalyAlarmMessage = f"WARNING: Traffic Threshold exceeded!! {hitsInRange}"
+            
+        # Recover from the alarm, if the hits drop below the threshold and we're in alarm status
+        if hitsInRange < threshold and self.anomalyAlarmStatus == 1:
+            self.anomalyAlarmStatus = 0
+            self.anomalyAlarmMessage = f"Recovered from excessive traffic"
+            
+        # If we're below the threshold, and the alarm has not been going off, set the message to a blank string
+        if hitsInRange < threshold and self.anomalyAlarmStatus == 0:
+            self.anomalyAlarmMessage = ""
+            
+        return()
 
     def sniffTraffic(self, callback=None, packetFilter="tcp port 80"):
         # if there's no custom callback set, use the default class method
