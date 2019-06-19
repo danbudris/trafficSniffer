@@ -2,7 +2,7 @@
 A python HTTP traffic sniffer. The traffic sniffer is implemented in the httpSniffer class.  When run as a script, `trafficSniffer.py` will start a reporting thread, then start the traffic sniffer.  The traffic sniffer will grab all HTTP traffic (TCP port 80) on the local network interface, and save it to an in-memory dataframe.  The reporting thread will print out a summary of traffic statistics every 10 seconds.  The report contains the top URL by hits, the top sections of hits to that URL, the sections overall with the greatest number of hits, and a warning as to wether the traffic has exceeded a specific threshold over a predfeined period.  In addition to the warning, once the warning condition is resolved the resolution message will also be displayed.  
 
 ## PreReqs
-Buit and tested on OSX.
+Built and tested on OSX.
 
 Requires python 3+
 
