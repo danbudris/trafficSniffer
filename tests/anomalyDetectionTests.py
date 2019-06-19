@@ -15,7 +15,7 @@ class anomalyDetectionTest(unittest.TestCase):
     def testAnomalyAlertTrigger(self):
         # Rapidly add 11 records to the sniffer dataframe, with a current timestamp
         for i in range(11):
-            self.testSniffer.trafficData.loc[pd.Timestamp('now')] == (record)
+            self.testSniffer.trafficData.loc[pd.Timestamp('now')] = (record)
 
         # Run the anomaly check
         self.testSniffer.anomalyCheck()
@@ -29,7 +29,7 @@ class anomalyDetectionTest(unittest.TestCase):
     def testAnomalyAlertRecovery(self):
         # Rapidly add 11 records to the sniffer dataframe, with a current timestamp
         for i in range(11):
-            self.testSniffer.trafficData.loc[pd.Timestamp('now')] == (record)
+            self.testSniffer.trafficData.loc[pd.Timestamp('now')] = (record)
 
         # Run the anomaly check
         self.testSniffer.anomalyCheck()
@@ -52,7 +52,7 @@ class anomalyDetectionTest(unittest.TestCase):
     def testAnomalyAlertNoTrigger(self):
         # Rapidly add 9 records to the sniffer dataframe, with a current timestamp
         for i in range(9):
-            self.testSniffer.trafficData.loc[pd.Timestamp('now')] == (record)
+            self.testSniffer.trafficData.loc[pd.Timestamp('now')] = (record)
 
         self.testSniffer.anomalyCheck()
 
