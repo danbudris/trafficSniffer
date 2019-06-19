@@ -4,21 +4,23 @@ from scapy_http import http
 import pandas as pd
 import numpy as np
 
-import threading
-
 from datetime import datetime
 from datetime import timedelta
 from time import sleep
 
+import threading
 import logging
 import argparse
-
+import curses
 
 class httpSniffer(object):
     """ Sniff HTTP traffic and report on the recorded traffic
     trafficData is a Pandas dataframe which records the baseUrl, section and path of each sniffed http request.  
     trafficData is indexed by timestamp.
     
+    generateStatusReport
+    Contains the template and data extraction for generating the status report.  Called by the status report daemon.
+
     statusReport
     Args: 
         asDaemon (bool): run the status report in a loop, for use in a thread
@@ -49,42 +51,49 @@ class httpSniffer(object):
         self.anomalyAlarmStatus = 0
         self.anomalyAlarmMessage = ""
 
-    def statusReport(self, asDaemon=True, frequency=10):
-        while True:
-            # run the anomaly check
-            self.anomalyCheck()
-            
-            # Gather the report data
-            topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
-            topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
-            totalHits = self.trafficData.baseUrl.count()
-            totalSections = self.trafficData.section.nunique()
-            totalPaths = self.trafficData.path.nunique()
-            topPath = self.trafficData.path.value_counts().head(1).to_string()
-            topSection = self.trafficData.section.value_counts().head(1).to_string()
+    def generateStatusReport(self):
+        # Gather the report data
+        topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
+        topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
+        totalHits = self.trafficData.baseUrl.count()
+        totalSections = self.trafficData.section.nunique()
+        totalPaths = self.trafficData.path.nunique()
+        topPath = self.trafficData.path.value_counts().head(1).to_string()
+        topSection = self.trafficData.section.value_counts().head(5).to_string()
+        anomalyData = self.anomalyAlarmMessage
 
-            # Generate the report string
-            statusReport = f"""
-{self.anomalyAlarmMessage}
+        # Generate the report string
+        statusReport = f"""
+--- Alerts
+{anomalyData}
 -------------------------
 --- Traffic Summary
 --- {datetime.now().strftime("%I:%M%:%S%p on %B %d, %Y")}
---- Most Accessed URL
 
-Top Hits by base URL: {topHits}
-Top Sections: \n {topHitSection}
+Top Sections by Hits: \n{topSection}\n
 
 --- General Summary
 Total Hits: {totalHits}
-
 Sum of Sections: {totalSections}
-Top Section by Hits: {topSection}
-
 Sum of Paths: {totalPaths}
+Top Hits by base URL: {topHits}
+Top Sections of most popular base URL: \n {topHitSection}
 Top Path by Hits: {topPath}
 --------------------------
 """
-            print(statusReport)
+        return(statusReport)
+
+    def statusReport(self, asDaemon=True, frequency=10):
+        stdscr = curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        
+        while True:
+            # run the anomaly check
+            self.anomalyCheck()
+            stdscr.clear()
+            stdscr.addstr(self.generateStatusReport())
+            stdscr.refresh()
             if not asDaemon:
                 return()
             sleep(frequency)
@@ -97,18 +106,14 @@ Top Path by Hits: {topPath}
         hitsInRange = len(self.trafficData[start:end])
         
         # If the hits exceed the threshold, trigger the alarm
-        if hitsInRange >= threshold and self.anomalyAlarmStatus == 0:
+        if hitsInRange >= threshold:
             self.anomalyAlarmStatus = 1
-            self.anomalyAlarmMessage = f'WARNING: {hitsInRange} hits over {timeRange} minutes!! Traffic Threshold exceeded!! {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
+            self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nWARNING: {hitsInRange} hits over {timeRange} minutes!! Traffic Threshold exceeded!! {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
             
         # Recover from the alarm, if the hits drop below the threshold and we're in alarm status
         if hitsInRange < threshold and self.anomalyAlarmStatus == 1:
             self.anomalyAlarmStatus = 0
-            self.anomalyAlarmMessage = f'Recovered from excessive traffic {not.strftime("%I:%M%:%S%p on %B %d, %Y")}'
-            
-        # If we're below the threshold, and the alarm has not been going off, set the message to a blank string
-        elif hitsInRange < threshold and self.anomalyAlarmStatus == 0:
-            self.anomalyAlarmMessage = ""
+            self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nRecovered from excessive traffic {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
             
         return()
 
@@ -126,13 +131,13 @@ Top Path by Hits: {topPath}
             return
 
         # Parse out the HTTP layer of the traffic
-        http_layer = pkt.getlayer(http.HTTPRequest)
-        ip_layer = pkt.getlayer(IP)
+        httpLayer = pkt.getlayer(http.HTTPRequest)
+        ipLayer = pkt.getlayer(IP)
 
         # Encode the packet data in UTF-8 from bytes, and processes as needed
-        baseUrl = http_layer.fields["Host"].decode("utf-8")
-        section = (http_layer.fields["Path"].decode("utf-8")).split("/")[1]
-        path = http_layer.fields["Path"].decode("utf-8")
+        baseUrl = httpLayer.fields["Host"].decode("utf-8")
+        section = (httpLayer.fields["Path"].decode("utf-8")).split("/")[1]
+        path = httpLayer.fields["Path"].decode("utf-8")
 
         # Add the packet information to the overall traffic dataframe
         self.trafficData.loc[pd.Timestamp('now')] = ([baseUrl, section, path])
