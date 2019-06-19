@@ -28,7 +28,13 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
 
 - Use `matplotlib`, `plotly` or some other charting library to generate on-demand histroical traffic charts.  Utilizing `pandas` as the data storage and manipulation mechanims opens up a whole world of possibilities for time-series analysis and visualzation.
 
-- Add more tests, for the traffic sniffing and report generation.
+- Add more tests:
+  - Test the rate of ingestion that that dataframe can handle
+  - Test performance of the application as the dataframe grows larger
+  - Test the generation of the template
+  - Test the individual data extraction functions, to ensure they're pull the right data
+  
+- Flush the dataframe after a predefined period of time?  Maybe flush it to disk, to reduce escalating memory consumption.
 
 - Adjust scapy to run in a thread in the background, and be able to start/stop it programatically.  Stoping it while running in a thread is tricky, as per numerous github issues.
 
