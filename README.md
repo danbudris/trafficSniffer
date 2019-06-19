@@ -18,6 +18,8 @@ From the project root: `sudo python -m trafficSniffer.trafficSniffer`
 
 This will start the traffic sniffer, on port 80, and the report thread.  The traffic sniffer will continuously sniff traffic while the report thread will display and update-in-place a traffic report to standardout every 10 seconds.
 
+To exit the application, use a keyboard interrupt -- `ctrl + c`.  The `curses` library may cause your terminal to behave strangely, including blank input.  Enter the command `reset` to reset the stdout pipe.  
+
 ## Run the Unit Test
 From the project root: `sudo python -m unittest tests.anomalyDetectionTests`
 
