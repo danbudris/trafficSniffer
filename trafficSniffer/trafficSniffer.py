@@ -99,7 +99,7 @@ Top Path by Hits: {topPath}
         # If the hits exceed the threshold, trigger the alarm
         if hitsInRange >= threshold and self.anomalyAlarmStatus == 0:
             self.anomalyAlarmStatus = 1
-            self.anomalyAlarmMessage = f'WARNING: {hitsInRange} hits over 2 minutes!! Traffic Threshold exceeded!! {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
+            self.anomalyAlarmMessage = f'WARNING: {hitsInRange} hits over {timeRange} minutes!! Traffic Threshold exceeded!! {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
             
         # Recover from the alarm, if the hits drop below the threshold and we're in alarm status
         if hitsInRange < threshold and self.anomalyAlarmStatus == 1:
@@ -107,7 +107,7 @@ Top Path by Hits: {topPath}
             self.anomalyAlarmMessage = f'Recovered from excessive traffic {"%I:%M%:%S%p on %B %d, %Y"}'
             
         # If we're below the threshold, and the alarm has not been going off, set the message to a blank string
-        if hitsInRange < threshold and self.anomalyAlarmStatus == 0:
+        elif hitsInRange < threshold and self.anomalyAlarmStatus == 0:
             self.anomalyAlarmMessage = ""
             
         return()
