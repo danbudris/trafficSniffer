@@ -14,12 +14,12 @@ To install the reqs:
 The application and tests must be run as `root` or with `sudo`, to allow access to the network interfaces by Scapy.
 
 ## Start the application
-From the root directory: `sudo python -m trafficSniffer.trafficSniffer`
+From the project root: `sudo python -m trafficSniffer.trafficSniffer`
 
 This will start the traffic sniffer, on port 80, and the report thread.  The traffic sniffer will continuously sniff traffic while the report thread will display and update-in-place a traffic report to standardout every 10 seconds.
 
 ## Run the Unit Test
-From the root directory: `sudo python -m unittest tests.anomalyDetectionTests`
+From the project root: `sudo python -m unittest tests.anomalyDetectionTests`
 
 This will run the unit tests for the anaomaly detection methods of the `httpSniffer` class.  
 
