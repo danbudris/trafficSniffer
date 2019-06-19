@@ -1,57 +1,57 @@
 import unittest
-import trafficSniffer.trafficSniffer
-
+from trafficSniffer.trafficSniffer import httpSniffer
+from pandas import Timestamp as pdts
 
 class anomalyDetectionTest(unittest.TestCase):
     def setUp(self):
-        self.testSniffer = trafficSniffer.httpSniffer()
+        self.testSniffer = httpSniffer()
         self.record = ['google.com', '/gmail', '/gmail/inbox']
 
-    def testAnomalyAlertTrigger():
+    def testAnomalyAlertTrigger(self):
         # Rapidly add 11 records to the sniffer dataframe, with a current timestamp
         for i in range(11):
-            testSniffer.trafficData.loc[pd.Timestamp('now')] == (record)
+            self.testSniffer.trafficData.loc[pdts('now')] == (record)
 
         # Run the anomaly check
-        testSniffer.anomalyCheck()
+        self.testSniffer.anomalyCheck()
 
         # Assert that the alert was triggered
-        assert(testSniffer.anomalyAlarmStatus == 1)
+        assert(self.testSniffer.anomalyAlarmStatus == 1)
 
         # Clear the data from the test sniffer dataframe 
-        testSniffer.iloc[0:0]
+        self.testSniffer.iloc[0:0]
 
-    def testAnomalyAlertRecovery():
+    def testAnomalyAlertRecovery(self):
         # Rapidly add 11 records to the sniffer dataframe, with a current timestamp
         for i in range(11):
-            testSniffer.trafficData.loc[pd.Timestamp('now')] == (record)
+            self.testSniffer.trafficData.loc[pdts('now')] == (record)
 
         # Run the anomaly check
-        testSniffer.anomalyCheck()
+        self.testSniffer.anomalyCheck()
 
         # Assert that the sniffer is triggering over the threshold
-        assert(testSniffer.anomalyAlarmStatus == 1)
+        assert(self.testSniffer.anomalyAlarmStatus == 1)
 
         # Clear the packets stored
-        testSniffer.iloc[0:0]
+        self.testSniffer.iloc[0:0]
 
         # Run the anomaly check -- should set the alarm status back to 0
-        testSniffer.anomalyCheck()
+        self.testSniffer.anomalyCheck()
 
         # Assert that the alarm status is back to 0, now that we've recovered from the alarm
-        assert(testSniffer.anomalyAlarmStatus == 0)
+        assert(self.testSniffer.anomalyAlarmStatus == 0)
 
         # Clear the data from the test sniffer dataframe    
-        testSniffer.iloc[0:0]
+        self.testSniffer.iloc[0:0]
 
-    def testAnomalyAlertNoTrigger():
+    def testAnomalyAlertNoTrigger(self):
         # Rapidly add 9 records to the sniffer dataframe, with a current timestamp
         for i in range(9):
-            testSniffer.trafficData.loc[pd.Timestamp('now')] == (record)
+            self.testSniffer.trafficData.loc[pdts('now')] == (record)
 
-        testSniffer.anomalyCheck()
+        self.testSniffer.anomalyCheck()
 
-        assert(testSniffer.anomalyAlarmStatus == 0)
+        assert(self.testSniffer.anomalyAlarmStatus == 0)
 
 if __name__ == '__main__':
     unittest.main()

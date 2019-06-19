@@ -7,9 +7,9 @@ import numpy as np
 import threading
 
 from datetime import datetime
+from datetime import timedelta
 from time import sleep
 
-import curses
 import logging
 import argparse
 
@@ -77,11 +77,11 @@ Top Sections: \n {topHitSection}
 --- General Summary
 Total Hits: {totalHits}
 
-Total Sections: {totalSections}
-Top Section Overall: {topSection}
+Sum of Sections: {totalSections}
+Top Section by Hits: {topSection}
 
-Total Paths: {totalPaths}
-Top Path Overall: {topPath}
+Sum of Paths: {totalPaths}
+Top Path by Hits: {topPath}
 --------------------------
 """
             print(statusReport)
@@ -92,19 +92,19 @@ Top Path Overall: {topPath}
     def anomalyCheck(self, threshold=10, timeRange=2):
         # Obtain the number of hits in the specified timerange
         now = datetime.now()
-        start =  now - datetime.timedelta(minutes=timeRange)
+        start =  now - timedelta(minutes=timeRange)
         end = now
-        hitsInRange = self.trafficData[start:end].count()
+        hitsInRange = len(self.trafficData[start:end])
         
         # If the hits exceed the threshold, trigger the alarm
         if hitsInRange >= threshold and self.anomalyAlarmStatus == 0:
             self.anomalyAlarmStatus = 1
-            self.anomalyAlarmMessage = f"WARNING: Traffic Threshold exceeded!! {hitsInRange}"
+            self.anomalyAlarmMessage = f'WARNING: {hitsInRange} hits over 2 minutes!! Traffic Threshold exceeded!! {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
             
         # Recover from the alarm, if the hits drop below the threshold and we're in alarm status
         if hitsInRange < threshold and self.anomalyAlarmStatus == 1:
             self.anomalyAlarmStatus = 0
-            self.anomalyAlarmMessage = f"Recovered from excessive traffic"
+            self.anomalyAlarmMessage = f'Recovered from excessive traffic {"%I:%M%:%S%p on %B %d, %Y"}'
             
         # If we're below the threshold, and the alarm has not been going off, set the message to a blank string
         if hitsInRange < threshold and self.anomalyAlarmStatus == 0:
@@ -147,15 +147,11 @@ def main():
     # Initialize the base traffic tracker
     traffic = httpSniffer()
 
-    # Start the reporting threads, to run concurrently with the sniffing
+    # Start the reporting thread, to run concurrently with the sniffing
     statusReport = traffic.statusReport
-    anomalyReport = traffic.anomalyCheck
     thread1 = threading.Thread(target=statusReport)
-    thread2 = threading.Thread(target=anomalyReport)
     thread1.setDaemon(True)
-    thread2.setDaemon(True)
     thread1.start()
-    thread2.start()
 
     traffic.sniffTraffic()
 
