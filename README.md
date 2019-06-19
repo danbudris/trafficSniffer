@@ -7,7 +7,9 @@ Built and tested on OSX.
 Requires python 3+
 
 Requierments are codified in `./requierments.txt`.
-To install the reqs: `pip3 install -r ./requierments.txt`
+
+To install the reqs:
+`pip3 install -r ./requierments.txt`
 
 The application and tests must be run as `root` or with `sudo`, to allow access to the network interfaces by Scapy.
 
