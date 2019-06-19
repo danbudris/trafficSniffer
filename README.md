@@ -24,7 +24,9 @@ From the root directory: `python -m unittest tests.anomalyDetectionTests`
 This will run the unit tests for the anaomaly detection methods of the `httpSniffer` class.  
 
 ## How we could imporve or extend this
-- Seperate the reporting template, currently a HEREDOC in the statuReport method of the httpSniffer class, into its own class, for greater extensibility and customization.
+- Seperate the reporting template, currently a HEREDOC in the statuReport method of the httpSniffer class, into its own class + template, and use a templating engine like Jinja2 in order to generate the final report.  
+
+- Add more tests, for the traffic sniffing and report generation.
 
 - Adjust scapy to run in a thread in the background, and be able to start/stop it programatically.  Stoping it while running in a thread is tricky, as per numerous github issues.
 
