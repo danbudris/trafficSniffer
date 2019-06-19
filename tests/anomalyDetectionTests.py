@@ -42,6 +42,7 @@ class anomalyDetectionTest(unittest.TestCase):
 
         # Run the anomaly check -- should set the alarm status back to 0
         self.testSniffer.anomalyCheck()
+        print(self.testSniffer.trafficData)
 
         # Assert that the alarm status is back to 0, now that we've recovered from the alarm
         assert(self.testSniffer.anomalyAlarmStatus == 0)
