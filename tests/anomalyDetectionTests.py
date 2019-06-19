@@ -39,7 +39,7 @@ class anomalyDetectionTest(unittest.TestCase):
         assert(self.testSniffer.anomalyAlarmStatus == 1)
 
         # Clear the packets stored
-        self.testSniffer.trafficData.iloc[0:0]
+        self.testSniffer.trafficData = self.testSniffer.trafficData[0:0]
 
         # Run the anomaly check -- should set the alarm status back to 0
         self.testSniffer.anomalyCheck()
