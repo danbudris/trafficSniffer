@@ -26,6 +26,8 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
 ## How we could imporve or extend this
 - Seperate the reporting template, currently a HEREDOC in the statuReport method of the httpSniffer class, into its own class + template, and use a templating engine like Jinja2 in order to generate the final report.  
 
+- Use `matplotlib`, `plotly` or some other charting library to generate on-demand histroical traffic charts.  Utilizing `pandas` as the data storage and manipulation mechanims opens up a whole world of possibilities for time-series analysis and visualzation.
+
 - Add more tests, for the traffic sniffing and report generation.
 
 - Adjust scapy to run in a thread in the background, and be able to start/stop it programatically.  Stoping it while running in a thread is tricky, as per numerous github issues.
