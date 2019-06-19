@@ -4,6 +4,8 @@ from scapy_http import http
 import pandas as pd
 import numpy as np
 
+from jinja2 import Template
+
 from datetime import datetime
 from datetime import timedelta
 from time import sleep
@@ -50,39 +52,26 @@ class httpSniffer(object):
         )
         self.anomalyAlarmStatus = 0
         self.anomalyAlarmMessage = ""
+        with open('statusReport.tpl') as templateFile:
+            self.statusReportTpl = Template(templateFile.read())
 
     def generateStatusReport(self):
         # Gather the report data
         logging.debug("Generating status report")
         
-        topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
-        topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
-        totalHits = self.trafficData.baseUrl.count()
-        totalSections = self.trafficData.section.nunique()
-        totalPaths = self.trafficData.path.nunique()
-        topPath = self.trafficData.path.value_counts().head(1).to_string()
-        topSection = self.trafficData.section.value_counts().head(5).to_string()
-        anomalyData = self.anomalyAlarmMessage
-
-        # Generate the report string
-        statusReport = f"""
---- Alerts
-{anomalyData}
--------------------------
---- Traffic Summary
---- {datetime.now().strftime("%I:%M%:%S%p on %B %d, %Y")}
-
-Top Sections by Hits: \n{topSection}\n
-
---- General Summary
-Total Hits: {totalHits}
-Sum of Sections: {totalSections}
-Sum of Paths: {totalPaths}
-Top Hits by base URL: {topHits}
-Top Sections of most popular base URL: \n {topHitSection}
-Top Path by Hits: {topPath}
---------------------------
-"""
+        reportData = {
+            "topHits": self.trafficData.baseUrl.value_counts().head(1).to_string(),
+            "topHitSection": (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False),
+            "totalHits": self.trafficData.baseUrl.count(),
+            "totalSections": self.trafficData.section.nunique(),
+            "totalPaths": self.trafficData.path.nunique(),
+            "topPath": self.trafficData.path.value_counts().head(1).to_string(),
+            "topSection": self.trafficData.section.value_counts().head(5).to_string(),
+            "anomalyData": self.anomalyAlarmMessage,
+            "now": datetime.now().strftime("%I:%M%:%S%p on %B %d, %Y")
+        }
+        
+        statusReport = self.statusReportTpl.render(reportData)
         logging.debug(statusReport)
         return(statusReport)
 
