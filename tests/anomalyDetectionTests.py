@@ -25,7 +25,8 @@ class anomalyDetectionTest(unittest.TestCase):
 
         # Clear the data from the test sniffer dataframe 
         self.testSniffer.trafficData.iloc[0:0]
-
+        print(self.testSniffer.trafficData)
+        
     def testAnomalyAlertRecovery(self):
         # Rapidly add 11 records to the sniffer dataframe, with a current timestamp
         for i in range(11):
