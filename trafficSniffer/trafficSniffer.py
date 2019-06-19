@@ -53,6 +53,8 @@ class httpSniffer(object):
 
     def generateStatusReport(self):
         # Gather the report data
+        logging.debug("Generating status report")
+        
         topHits = self.trafficData.baseUrl.value_counts().head(1).to_string()
         topHitSection = (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False)
         totalHits = self.trafficData.baseUrl.count()
@@ -81,15 +83,18 @@ Top Sections of most popular base URL: \n {topHitSection}
 Top Path by Hits: {topPath}
 --------------------------
 """
+        logging.debug(statusReport)
         return(statusReport)
 
     def statusReport(self, asDaemon=True, frequency=10):
+        logging.debug("Printing status report")
         stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()
         
         while True:
             # run the anomaly check
+            logging.debug("executing anaomaly check")
             self.anomalyCheck()
             stdscr.clear()
             stdscr.addstr(self.generateStatusReport())
@@ -104,6 +109,8 @@ Top Path by Hits: {topPath}
         start =  now - timedelta(minutes=timeRange)
         end = now
         hitsInRange = len(self.trafficData[start:end])
+        logging.debug(hitsInRange)
+        logging.debug(start, end)
         
         # If the hits exceed the threshold, trigger the alarm
         if hitsInRange >= threshold:
