@@ -24,7 +24,7 @@ class anomalyDetectionTest(unittest.TestCase):
         assert(self.testSniffer.anomalyAlarmStatus == 1)
 
         # Clear the data from the test sniffer dataframe 
-        self.testSniffer.iloc[0:0]
+        self.testSniffer.trafficData.iloc[0:0]
 
     def testAnomalyAlertRecovery(self):
         # Rapidly add 11 records to the sniffer dataframe, with a current timestamp
@@ -38,7 +38,7 @@ class anomalyDetectionTest(unittest.TestCase):
         assert(self.testSniffer.anomalyAlarmStatus == 1)
 
         # Clear the packets stored
-        self.testSniffer.iloc[0:0]
+        self.testSniffer.trafficData.iloc[0:0]
 
         # Run the anomaly check -- should set the alarm status back to 0
         self.testSniffer.anomalyCheck()
@@ -47,7 +47,7 @@ class anomalyDetectionTest(unittest.TestCase):
         assert(self.testSniffer.anomalyAlarmStatus == 0)
 
         # Clear the data from the test sniffer dataframe    
-        self.testSniffer.iloc[0:0]
+        self.testSniffer.trafficData.iloc[0:0]
 
     def testAnomalyAlertNoTrigger(self):
         # Rapidly add 9 records to the sniffer dataframe, with a current timestamp
