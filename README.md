@@ -24,7 +24,7 @@ From the root directory: `python -m unittest tests.anomalyDetectionTests`
 This will run the unit tests for the anaomaly detection methods of the `httpSniffer` class.  
 
 ## How we could imporve or extend this
-- Seperate the reporting template, currently a HEREDOC in the statuReport method of the httpSniffer class, into its own class + template, and use a templating engine like Jinja2 in order to generate the final report.  
+- Seperate the reporting template, currently a HEREDOC in the statuReport method of the httpSniffer class, into its own class + template, and use a templating engine like `jinja2` in order to generate the final report.  
 
 - Use `matplotlib`, `plotly` or some other charting library to generate on-demand histroical traffic charts.  Utilizing `pandas` as the data storage and manipulation mechanims opens up a whole world of possibilities for time-series analysis and visualzation.
 
