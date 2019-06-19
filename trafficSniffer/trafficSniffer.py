@@ -104,7 +104,7 @@ Top Path by Hits: {topPath}
         # Recover from the alarm, if the hits drop below the threshold and we're in alarm status
         if hitsInRange < threshold and self.anomalyAlarmStatus == 1:
             self.anomalyAlarmStatus = 0
-            self.anomalyAlarmMessage = f'Recovered from excessive traffic {"%I:%M%:%S%p on %B %d, %Y"}'
+            self.anomalyAlarmMessage = f'Recovered from excessive traffic {not.strftime("%I:%M%:%S%p on %B %d, %Y")}'
             
         # If we're below the threshold, and the alarm has not been going off, set the message to a blank string
         elif hitsInRange < threshold and self.anomalyAlarmStatus == 0:
