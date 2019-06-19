@@ -93,18 +93,15 @@ Top Path by Hits: {topPath}
         curses.cbreak()
         
         while True:
-            try:
-                # run the anomaly check
-                logging.debug("executing anaomaly check")
-                self.anomalyCheck()
-                stdscr.clear()
-                stdscr.addstr(self.generateStatusReport())
-                stdscr.refresh()
-                if not asDaemon:
-                    return()
-                sleep(frequency)
-            except KeyboardInterrupt:
-                pass    
+            # run the anomaly check
+            logging.debug("executing anaomaly check")
+            self.anomalyCheck()
+            stdscr.clear()
+            stdscr.addstr(self.generateStatusReport())
+            stdscr.refresh()
+            if not asDaemon:
+                return()
+            sleep(frequency)  
 
     def anomalyCheck(self, threshold=10, timeRange=2):
         # Obtain the number of hits in the specified timerange
