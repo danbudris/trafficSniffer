@@ -26,7 +26,7 @@ class anomalyDetectionTest(unittest.TestCase):
         # Clear the data from the test sniffer dataframe 
         self.testSniffer.trafficData.iloc[0:0]
         self.testSniffer.trafficData.drop(self.testSniffer.trafficData.index[0:])
-        print(self.testSniffer.trafficData.iloc[0])
+        print(self.testSniffer.trafficData.iloc[1])
         print(self.testSniffer.trafficData)
         
     def testAnomalyAlertRecovery(self):
