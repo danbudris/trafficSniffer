@@ -30,7 +30,7 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
 
 - Adjust scapy to run in a thread in the background, and be able to start/stop it programatically.  Stoping it while running in a thread is tricky, as per numerous github issues.
 
-- Track other packet information about each request, such as dst ip, src ip, DNS server, DNS roundtrip, etc for more interesting details
+- Track other packet information about each request, including layer 3 information like dst ip, src ip, DNS server, DNS roundtrip, and layer 2 information like gateway address etc for more interesting details about traffic as a whole.
 
 - Adjust the anomaly detection to factor in the true average traffic over a predefined sample period, as a baseline, and then start alerting on deviations form the sample data, rather than simply alerting on the excess of an arbitrary threshold.   
 
