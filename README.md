@@ -11,7 +11,7 @@ Dependencies are documented in `./requierments.txt`.
 To install the dependencies:
 `pip install -r ./requierments.txt`
 
-The application and tests must be run as `root` or with `sudo`, to allow access to the network interfaces by Scapy.
+The application and tests must be run as `root` or with `sudo`, to allow access to the network interfaces by [Scapy](https://scapy.net/).
 
 ## Start the application
 From the project root: `sudo python -m trafficSniffer.trafficSniffer`
