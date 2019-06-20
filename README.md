@@ -33,6 +33,7 @@ This will run the unit tests for the anomaly detection methods of the `httpSniff
 - Use `matplotlib`, `plotly` or some other charting library to generate on-demand historical traffic charts.  Utilizing `pandas` as the data storage and manipulation mechanism opens up a whole world of possibilities for time-series analysis and visualization.
 
 - Add more tests:
+  - Test the packet processing logic, ensuring it's extracting the URL data correctly
   - Test the rate of ingestion that the data frame can handle
   - Test performance of the application as the dataframe grows larger
   - Test the generation of the template
