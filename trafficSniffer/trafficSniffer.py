@@ -148,6 +148,7 @@ class httpSniffer(object):
         if not callback:
             callback = self.processPackets
 
+        # Sniff the traffic!!
         logging.info("Starting packet capture...")
         sniff(prn=callback, filter=packetFilter)
 
@@ -160,7 +161,7 @@ class httpSniffer(object):
         httpLayer = pkt.getlayer(http.HTTPRequest)
         ipLayer = pkt.getlayer(IP)
 
-        # Encode the packet data in UTF-8 from bytes, and processes as needed
+        # Encode the packet data in UTF-8 from bytes, and process as needed.  Split the 'section' into it's own field.
         baseUrl = httpLayer.fields["Host"].decode("utf-8")
         section = (httpLayer.fields["Path"].decode("utf-8")).split("/")[1]
         path = httpLayer.fields["Path"].decode("utf-8")
@@ -172,8 +173,7 @@ class httpSniffer(object):
 
 
 def main():
-    '''
-        Main function for executing the reporting concurrently with the traffic sniffing
+    '''Main function for executing the reporting concurrently with the traffic sniffing
     '''
     # Initialize the base traffic tracker
     traffic = httpSniffer()
@@ -184,6 +184,7 @@ def main():
     thread1.setDaemon(True)
     thread1.start()
 
+    # Start sniffing traffic, while the repoting thread is running in the background
     traffic.sniffTraffic()
 
 if __name__ == "__main__":
