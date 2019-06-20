@@ -12,16 +12,19 @@ from time import sleep
 
 import threading
 import logging
-import argparse
 import curses
 
 class httpSniffer(object):
-    """ Sniff HTTP traffic and report on the recorded traffic
+    """ Sniff HTTP traffic and report on the recorded traffic.
     trafficData is a Pandas dataframe which records the baseUrl, section and path of each sniffed http request.  
     trafficData is indexed by timestamp.
+
+    anaomalyAlarmStatus, anomalyAlarmMessage, anomalyStart, and anomalyEnd are all used to track the status of an ongoing alarm.
+
+    statusReportTpl is a jinja template loaded from a local file, allowing easy editing and swapping of templates.
     
     generateStatusReport
-    Contains the template and data extraction for generating the status report.  Called by the status report daemon.
+    Renders the status report template with details gathered from the traffic dataframe
 
     statusReport
     Args: 
@@ -44,38 +47,50 @@ class httpSniffer(object):
     """
     
     def __init__(self):
+        # Set up the dataframe for storing traffic information
         self.trafficData = (
             pd.DataFrame(
                 columns=['baseUrl', 'section', 'path'],
                 index=pd.to_datetime([])
             )
         )
+
+        # Set the alarm status to 'off'
         self.anomalyAlarmStatus = 0
         self.anomalyAlarmMessage = ""
+        self.anomalyStart = None
+        self.anomalyEnd = None
+
+        # Load the template for the status report from local file
         with open('statusReport.tpl') as templateFile:
             self.statusReportTpl = Template(templateFile.read())
 
     def generateStatusReport(self):
-        # Gather the report data
-        logging.debug("Generating status report")
-        
+        ''' Generate the data for the status report, and render it into a template for later display.
+        '''
+        # Gather the report data from the traffic dataframe                
         reportData = {
-            "topHits": self.trafficData.baseUrl.value_counts().head(1).to_string(),
-            "topHitSection": (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False),
+            "topHits": self.trafficData.baseUrl.value_counts().head(1).to_string() if not self.trafficData.empty else "None",
+            "topHitSection": (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False) if not self.trafficData.empty else "None",
             "totalHits": self.trafficData.baseUrl.count(),
             "totalSections": self.trafficData.section.nunique(),
             "totalPaths": self.trafficData.path.nunique(),
-            "topPath": self.trafficData.path.value_counts().head(1).to_string(),
-            "topSection": self.trafficData.section.value_counts().head(5).to_string(),
-            "anomalyData": self.anomalyAlarmMessage,
+            "topPath": self.trafficData.path.value_counts().head(1).to_string() if not self.trafficData.empty else "None",
+            "topSection": self.trafficData.section.value_counts().head(5).to_string() if not self.trafficData.empty else "None",
+            "anomalyData": self.anomalyAlarmMessage if self.anomalyAlarmMessage != "" else "No Alarms",
             "now": datetime.now().strftime("%I:%M%:%S%p on %B %d, %Y")
         }
-        
+        logging.debug(reportData)
+
+        # Load the report data into the template, then return it
         statusReport = self.statusReportTpl.render(reportData)
+        
         logging.debug(statusReport)
         return(statusReport)
 
     def statusReport(self, asDaemon=True, frequency=10):
+        ''' Print the status report to stdout, and update in place, and the provided frequency
+        '''
         logging.debug("Printing status report")
         stdscr = curses.initscr()
         curses.noecho()
@@ -85,6 +100,7 @@ class httpSniffer(object):
             # run the anomaly check
             logging.debug("executing anaomaly check")
             self.anomalyCheck()
+            # Display the status report in to Stdout, as an in-place update
             stdscr.clear()
             stdscr.addstr(self.generateStatusReport())
             stdscr.refresh()
@@ -93,6 +109,9 @@ class httpSniffer(object):
             sleep(frequency)  
 
     def anomalyCheck(self, threshold=10, timeRange=2):
+        ''' Check if the traffic over the specified time range exceeds the specified threshold.
+            If it does, update the alarm attributes and alarm message.
+        '''
         # Obtain the number of hits in the specified timerange
         now = datetime.now()
         start =  now - timedelta(minutes=timeRange)
@@ -102,18 +121,26 @@ class httpSniffer(object):
         logging.debug(start, end)
         
         # If the hits exceed the threshold, trigger the alarm
-        if hitsInRange >= threshold:
+        if hitsInRange >= threshold and self.anomalyAlarmStatus == 0:
             self.anomalyAlarmStatus = 1
-            self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nWARNING: {hitsInRange} hits over {timeRange} minutes!! Traffic Threshold exceeded!! {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
+            self.anomalyStart = now.strftime("%I:%M%:%S%p on %B %d, %Y")
+            self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nHigh traffic generated an alert - hits = {hitsInRange}, triggered at {self.anomalyStart}'
             
+        # If the alarm continues, note that it continues, and include the hits over the last 2 minutes
+        elif hitsInRange >= threshold and self.anomalyAlarmStatus == 1:
+            self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nHigh traffic continues - hits = {hitsInRange} over {timeRange} minutes'
+
         # Recover from the alarm, if the hits drop below the threshold and we're in alarm status
         if hitsInRange < threshold and self.anomalyAlarmStatus == 1:
             self.anomalyAlarmStatus = 0
-            self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nRecovered from excessive traffic {now.strftime("%I:%M%:%S%p on %B %d, %Y")}'
+            self.anomalyEnd = now.strftime("%I:%M%:%S%p on %B %d, %Y")
+            self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nRecovered from excessive traffic alert.  Alert persisted from {self.anomalyStart} to {self.anomalyEnd}'
             
         return()
 
     def sniffTraffic(self, callback=None, packetFilter="tcp port 80"):
+        ''' Start the scapy HTTP sniffer, passing packets to the specified callback, and apply the given filter.
+        '''
         # if there's no custom callback set, use the default class method
         if not callback:
             callback = self.processPackets
@@ -137,8 +164,8 @@ class httpSniffer(object):
 
         # Add the packet information to the overall traffic dataframe
         self.trafficData.loc[pd.Timestamp('now')] = ([baseUrl, section, path])
-        #print(self.trafficData)
-        return
+
+        return()
 
 
 def main():

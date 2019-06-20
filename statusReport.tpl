@@ -13,9 +13,9 @@ Top Sections by Hits:
 --- General Traffic Summary ---
 Total Hits: {{totalHits}}
 
-Sum of Sections: {{totalSections}}
+Sum of Uniqe Sections: {{totalSections}}
 
-Sum of Paths: {{totalPaths}}
+Sum of Unique Paths: {{totalPaths}}
 
 Top Hits by base URL: {{topHits}}
 
