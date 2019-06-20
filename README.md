@@ -20,7 +20,7 @@ This will start the traffic sniffer, on port 80, and the report thread.  The tra
 
 To exit the application, use a keyboard interrupt -- `ctrl + c`.  The `curses` library may cause your terminal to behave strangely, including blank input.  Enter the command `reset` to reset the stdout pipe.
 
-## Run the Unit Test
+## Run the Unit Tests
 From the project root: `sudo python -m unittest tests.anomalyDetectionTests`
 
 This will run the unit tests for the anaomaly detection methods of the `httpSniffer` class.  Currently, these three units tests will check if:
