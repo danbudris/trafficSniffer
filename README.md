@@ -29,6 +29,9 @@ This will run the unit tests for the anomaly detection methods of the `httpSniff
 - The alert will not trigger if there are hits in the last 2 minutes, but fewer than 10
 - The alert will trigger and then recover if the number of hits in the last 2 minutes drops from more than 10 to less than 10
 
+## General Notes
+The template file from which the status report is derived is located int he root of the project, as `./statusReport.tpl`.
+
 ## How we could improve or extend trafficSniffer
 - Use `matplotlib`, `plotly` or some other charting library to generate on-demand historical traffic charts.  Utilizing `pandas` as the data storage and manipulation mechanism opens up a whole world of possibilities for time-series analysis and visualization.
 
