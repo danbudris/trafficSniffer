@@ -16,17 +16,18 @@ The application and tests must be run as `root` or with `sudo`, to allow access 
 ## Start the application
 From the project root: `sudo python -m trafficSniffer.trafficSniffer`
 
-This will start the traffic sniffer, on port 80, and the report thread.  The traffic sniffer will continuously sniff traffic while the report thread will display and update-in-place a traffic report to standardout every 10 seconds.
+This will start the traffic sniffer, on port 80, and the report thread.  The traffic sniffer will continuously sniff traffic while the report thread will display and update-in-place a traffic report to standard out every 10 seconds.
 
-To exit the application, use a keyboard interrupt -- `ctrl + c`.  The `curses` library may cause your terminal to behave strangely, including blank input.  Enter the command `reset` to reset the stdout pipe.  
+To exit the application, use a keyboard interrupt -- `ctrl + c`.  The `curses` library may cause your terminal to behave strangely, including blank input.  Enter the command `reset` to reset the stdout pipe.
 
 ## Run the Unit Test
 From the project root: `sudo python -m unittest tests.anomalyDetectionTests`
 
 This will run the unit tests for the anaomaly detection methods of the `httpSniffer` class.  Currently, these three units tests will check if:
 - The alert triggers if there are more than 10 hits in the last 2 minutes
+- The alert will not trigger if there are more than 10 hits total, but not in the last 2 minutes
 - The alert will not trigger if there are fewer than 10 hits in the last 2 minutes
-- The alert will trigger and then recover if the number of hits in the last 2 minutes drops below 10
+- The alert will trigger and then recover if the number of hits in the last 2 minutes drops from more than 10 to less than 10
 
 ## How we could imporve or extend trafficSniffer
 - Use `matplotlib`, `plotly` or some other charting library to generate on-demand histroical traffic charts.  Utilizing `pandas` as the data storage and manipulation mechanims opens up a whole world of possibilities for time-series analysis and visualzation.
@@ -36,6 +37,12 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
   - Test performance of the application as the dataframe grows larger
   - Test the generation of the template
   - Test the individual data extraction functions, to ensure they're pull the right data
+ 
+ - Rather than generating the very synthentic test data, modify the anomaly deteciton unit tests to sniff traffic, use `requests` to generate actual http traffic, and then test for the anomalies.
+ 
+- Track other packet information about each request, including DNS server, DNS roundtrip, layer 3 information like dst ip, src ip, and layer 2 information like gateway mac and arp requests etc for more interesting details about traffic and the lan/wan as a whole.  Don't just focus on HTTP, basically, but the whole request lifecycle.  So, build wireshark. :)
+  
+- Adjust the anomaly detection to factor in the true average traffic over a predefined sample period, as a baseline, and then start alerting on deviations from the sample data, rather than simply alerting on the excess of an arbitrary threshold during a sliding window.
   
 - The data extraction with pandas could be optimized/made more clear
 
@@ -47,15 +54,9 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
 
 - Keep `curses` from breaking the terminal after a keyboard interrupt.
 
-- Track other packet information about each request, including DNS server, DNS roundtrip, layer 3 information like dst ip, src ip, and layer 2 information like gateway mac and arp requests etc for more interesting details about traffic and the lan/wan as a whole.
-
 - Track statistical information about the traffic -- hits per second, hits on average over a timeframe, hits on average in the last X minutes per site, etc.  There's a wealth of interesting information that could be added to this program.  I'd be excited to build out more, and really get to know a network and the traffic on it.
 
-- Adjust the anomaly detection to factor in the true average traffic over a predefined sample period, as a baseline, and then start alerting on deviations from the sample data, rather than simply alerting on the excess of an arbitrary threshold during a sliding window.
-
-- Rather than generating the very synthentic test data, modify the anomaly deteciton unit tests to sniff traffic, use `requests` to generate actual http traffic, and then test for the anomalies.
-
-- Use `argparse` to add user input to the module, allowing it to be executed with flags which dictate things like the tcp filter and requency of reporting.  While I'm at it, allow it to read a configfile with `configparser`, and derive baseline values from the config.
+- Use `argparse` to add user input to the module, allowing it to be executed with flags which dictate things like the tcp filter and requency of reporting.  While I'm at it, allow it to read a configfile with `configparser`, and derive baseline values from an `.ini`.
 
 ## Author
 Dan Budris <d.c.budris@gmail.com>
