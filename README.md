@@ -23,10 +23,10 @@ To exit the application, use a keyboard interrupt -- `ctrl + c`.  The `curses` l
 ## Run the Unit Tests
 From the project root: `sudo python -m unittest tests.anomalyDetectionTests`
 
-This will run the unit tests for the anomaly detection methods of the `httpSniffer` class.  Currently, these three units tests will check if:
+This will run the unit tests for the anomaly detection methods of the `httpSniffer` class.  Currently, these four units tests will assert that:
 - The alert triggers if there are more than 10 hits in the last 2 minutes
-- The alert will not trigger if there are more than 10 hits total, but not in the last 2 minutes
-- The alert will not trigger if there are fewer than 10 hits in the last 2 minutes
+- The alert will not trigger if there are more than 10 hits total, but fewer than 10 in the last 2 minutes
+- The alert will not trigger if there are hits in the last 2 minutes, but fewer than 10
 - The alert will trigger and then recover if the number of hits in the last 2 minutes drops from more than 10 to less than 10
 
 ## How we could improve or extend trafficSniffer
