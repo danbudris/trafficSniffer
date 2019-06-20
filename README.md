@@ -64,5 +64,7 @@ The template file from which the status report is derived is located int he root
 
 - Improve the look of the report template; maybe even build a window with Tkinter, or something, so you have the option of a GUI if you'd like.  That actually seems pretty gratuitous.  
 
+- Use the native timestamp on the packet rather than a timestamp generated at processing time for a more acurate timeframe for incomming information.
+
 ## Author
 Dan Budris <d.c.budris@gmail.com>
