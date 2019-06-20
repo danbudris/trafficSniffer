@@ -58,5 +58,7 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
 
 - Use `argparse` to add user input to the module, allowing it to be executed with flags which dictate things like the tcp filter and requency of reporting.  While I'm at it, allow it to read a configfile with `configparser`, and derive baseline values from an `.ini`.
 
+- Improve the look of the report template; maybe even build a window with Tkinter, or something, so you have the option of a GUI if you'd like.  That actually seems pretty gratuitious.  
+
 ## Author
 Dan Budris <d.c.budris@gmail.com>
