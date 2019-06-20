@@ -28,7 +28,7 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
 - The alert will not trigger if there are fewer than 10 hits in the last 2 minutes
 - The alert will trigger and then recover if the number of hits in the last 2 minutes drops below 10
 
-## How we could imporve or extend this
+## How we could imporve or extend trafficSniffer
 - Use `matplotlib`, `plotly` or some other charting library to generate on-demand histroical traffic charts.  Utilizing `pandas` as the data storage and manipulation mechanims opens up a whole world of possibilities for time-series analysis and visualzation.
 
 - Add more tests:
@@ -36,6 +36,10 @@ This will run the unit tests for the anaomaly detection methods of the `httpSnif
   - Test performance of the application as the dataframe grows larger
   - Test the generation of the template
   - Test the individual data extraction functions, to ensure they're pull the right data
+  
+- The data extraction with pandas could be optimized/made more clear
+
+- The data extraction with pandas could probably be done elsewhere, outside of the dict that we pass to Jinja, for clarity.  There also may be good places to keep running totals as we process packets, which would allow us to use pre-calculated/cached values rather than extracting them from the dataframe on each run.  This extraction will become unweildly as the DF grows to any scale.
   
 - Flush the dataframe after a predefined period of time?  Maybe flush it to disk, to reduce escalating memory consumption.  Perhaps we could use a different data structure other than a `pandas` `dataframe`, like a pcap.
 
