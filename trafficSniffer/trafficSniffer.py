@@ -69,14 +69,17 @@ class httpSniffer(object):
         ''' Generate the data for the status report, and render it into a template for later display.
         '''
         # Gather the report data from the traffic dataframe                
+
         reportData = {
+            "topSection": (self.trafficData.loc[self.trafficData['section'] == self.trafficData['section'].value_counts().argmax(), ['baseUrl', 'section']]).groupby(['baseUrl','section']).size().head(5).to_string() if not self.trafficData.empty else "None",
             "topHits": self.trafficData.baseUrl.value_counts().head(1).to_string() if not self.trafficData.empty else "None",
-            "topHitSection": (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData.baseUrl.value_counts().head(1).to_string(index=False), 'section']).head(5).to_string(index=False) if not self.trafficData.empty else "None",
             "totalHits": self.trafficData.baseUrl.count(),
             "totalSections": self.trafficData.section.nunique(),
             "totalPaths": self.trafficData.path.nunique(),
+            "totalBaseUrls": self.trafficData.baseUrl.nunique(),
             "topPath": self.trafficData.path.value_counts().head(1).to_string() if not self.trafficData.empty else "None",
-            "topSection": self.trafficData.section.value_counts().head(5).to_string() if not self.trafficData.empty else "None",
+            "topHitSection": (self.trafficData.loc[self.trafficData['baseUrl'] == self.trafficData['baseUrl'].value_counts().argmax(), ['baseUrl','section']]).groupby(['baseUrl', 'section']).size().head(5).to_string() if not self.trafficData.empty else "None",
+            "trafficAverage": round((self.trafficData.baseUrl.count()/self.trafficData.baseUrl.nunique()), 3) if not self.trafficData.empty else "0",
             "anomalyData": self.anomalyAlarmMessage if self.anomalyAlarmMessage != "" else "No Alarms",
             "now": datetime.now().strftime("%I:%M%:%S%p on %B %d, %Y")
         }
@@ -136,7 +139,7 @@ class httpSniffer(object):
             self.anomalyEnd = now.strftime("%I:%M%:%S%p on %B %d, %Y")
             self.anomalyAlarmMessage = self.anomalyAlarmMessage + f'\nRecovered from excessive traffic alert.  Alert persisted from {self.anomalyStart} to {self.anomalyEnd}'
             
-        return()
+        return
 
     def sniffTraffic(self, callback=None, packetFilter="tcp port 80"):
         ''' Start the scapy HTTP sniffer, passing packets to the specified callback, and apply the given filter.
@@ -165,7 +168,7 @@ class httpSniffer(object):
         # Add the packet information to the overall traffic dataframe
         self.trafficData.loc[pd.Timestamp('now')] = ([baseUrl, section, path])
 
-        return()
+        return
 
 
 def main():

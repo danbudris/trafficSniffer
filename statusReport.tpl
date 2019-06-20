@@ -6,22 +6,29 @@
 --- Traffic Summary -----------
 {{now}}
 
-Top Sections by Hits:
+Highest Traffic Section Overall:
+
 {{topSection}}
+
+
+Section Hits of Highest Traffic base URL:
+
+{{topHitSection}}
 
 -------------------------------
 --- General Traffic Summary ---
-Total Hits: {{totalHits}}
+Average Traffic Per Base URL: {{trafficAverage}}
 
-Sum of Uniqe Sections: {{totalSections}}
+Total Traffic: {{totalHits}}
 
-Sum of Unique Paths: {{totalPaths}}
+Unique Base URLs: {{totalBaseUrls}}
 
-Top Hits by base URL: {{topHits}}
+Uniqe Sections: {{totalSections}}
 
-Top Sections of most popular base URL: 
-{{topHitSection}}
+Unique Paths: {{totalPaths}}
 
-Top Path by Hits: {{topPath}}
+Top Base URL by Traffic: {{topHits}}
+
+Top Path by Traffic: {{topPath}}
 -------------------------------
 -------------------------------
